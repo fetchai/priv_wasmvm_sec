@@ -1,177 +1,144 @@
-> ⚠️ **CONFIDENTIAL PRIVATE SECURITY HOTFIX**
->
-> This is a private fork carrying an unreleased fix for a critical severity
-> CosmWasm vulnerability in the Wasmer Singlepass compiler. Do not share,
-> fork, or discuss publicly until disclosure.
-> **Read [HOTFIX.md](HOTFIX.md) before doing anything else.**
+# Confidential Security Hotfix
 
-# wasmvm
+⚠️ **This repository is confidential.**
 
-This is a wrapper around the
-[CosmWasm VM](https://github.com/CosmWasm/cosmwasm/tree/main/packages/vm). It
-allows you to compile, initialize and execute CosmWasm smart contracts from Go
-applications, in particular from
-[x/wasm](https://github.com/CosmWasm/wasmd/tree/master/x/wasm).
+This repository contains a **private security hotfix for a critical severity CosmWasm vulnerability** that can lead to **fund loss**. The issue is exploitable in practice, and has been locally reproduced.
 
-More information on what is CosmWasm and how to use it can be found here:
-[CosmWasm Docs](https://docs.cosmwasm.com). To generate and show
-the Rust part documentation you can run `make doc-rust`.
+The vulnerability is in the Wasmer Singlepass compiler used by `libwasmvm`. The fix upgrades the embedded Wasmer engine to **7.4.0**. Any chain that links `libwasmvm` and allows contract upload or instantiation to be reached by an attacker is affected.
 
-## Structure
+Details are intentionally limited during the private disclosure window.
+Please **do not share, fork, or discuss publicly** until disclosure.
 
-This repo contains both Rust and Go code. The Rust code is compiled into a
-library (shared `.dll`/`.dylib`/`.so` or static `.a`) to be linked via cgo and
-wrapped with a pleasant Go API. The full build step involves compiling Rust -> C
-library, and linking that library to the Go code. For ergonomics of the user, we
-will include pre-compiled libraries to easily link with, and Go developers
-should just be able to import this directly.
+Thank you for your continued dedication to maintaining a safe and secure ecosystem.
 
-### Rust code
+---
 
-The Rust code lives in a sub-folder `./libwasmvm`. This folder compiles to a
-library that can be used via FFI. It is compiled like this:
+## Upgrade Guidance
 
-```sh
-# Run unit tests
-(cd libwasmvm && cargo test)
+To reduce the risk of premature disclosure, it is **strongly recommended** that this fix is deployed via **compiled binaries distributed directly to validators**, rather than public source changes, until the disclosure window closes.
 
-# Create release build for your current system. Uses whatever default Rust
-# version you have installed.
-make build-libwasmvm
+This upgrade must be performed as a coordinated upgrade.
 
-# Create reproducible release builds for other systems (slow, don't use for development)
-make release-build-alpine
-make release-build-linux
-make release-build-macos
-make release-build-windows
+If you cannot complete this upgrade before the disclosure window closes, apply the interim mitigation instead: rebuild your existing binary as position-independent (`-buildmode=pie`, and `-static-pie` in place of `-static` in `extldflags`) and set `kernel.randomize_va_space=2` on every validator host. That reduces exploitability but does not remove the vulnerability.
+
+## Timeline
+
+The private disclosure window for this vulnerability is open now. After the window closes, the fixes will be merged into the public repositories and released as patch releases.
+
+⚠️ **Disclosure date: [NEEDS CONFIRMING before this doc is shared]**
+
+### Hotfix Branches
+
+⚠️ **The fix is not on `main`.** `main` tracks upstream. The patched code lives on the `security/*` branches below. Check out the branch matching your release line before you build.
+
+The fix is delivered on `security/*` branches. Pick the one matching your current `wasmvm` line. **The Go module path differs by major version, so the two are not interchangeable.**
+
+| Your `wasmvm` line | Branch | Version | Module path | Previous Wasmer | Patched Wasmer |
+|---|---|---|---|---|---|
+| `v2.3.x` | `security/v2.3.x` | `2.3.5-rc.2` | `github.com/CosmWasm/wasmvm/v2` | 4.3.7 | **7.4.0** |
+| `v3.0.x` | `security/v3.0.x` | `3.0.8-rc.2` | `github.com/CosmWasm/wasmvm/v3` | 5.0.6 | **7.4.0** |
+
+Tag status:
+
+- `v2.3.5-rc.2` is tagged and resolvable.
+- ⚠️ **`v3.0.8-rc.2` is not yet tagged.** Pin by commit from the head of `security/v3.0.x` until a tag is published.
+
+> If you are on a `wasmvm` line older than `v2.3.x`, there is no patched branch for you. Contact us. Do not attempt to port the fix yourself. Apply the PIE and ASLR mitigation above in the meantime.
+
+---
+
+## Applying the Hotfix
+
+### 1. Update your Git config to use private repositories
+
+#### SSH Instructions
+
+First, configure your machine to use SSH for Git. More details can be found here: https://docs.github.com/en/authentication/connecting-to-github-with-ssh.
+
+To use SSH in `go mod` downloads, add these lines to `~/.gitconfig`:
+
+```md
+[url "ssh://git@github.com/"]
+    insteadOf = https://github.com/
 ```
 
-### Go code
+#### HTTPS Instructions
 
-The Go code consists of three packages:
+If you choose to use HTTPS, please follow the instructions here: https://go.dev/doc/faq#git_https.
 
-1. The types (the `github.com/CosmWasm/wasmvm/types` import), using
-   `package types`
-2. The internal package `internal/api`, using `package api`
-3. This repo (the `github.com/CosmWasm/wasmvm` import), using `package cosmwasm`
+### 2. Update `go.mod`
 
-The dependencies between them are as follows:
+Add a `replace` directive pointing to this repository, using the module path and version that match your release line.
 
-```mermaid
-graph TD;
-    api-->types;
-    cosmwasm-->types;
-    cosmwasm-->api;
+If you are on `v2.3.x`:
+
+```go
+replace github.com/CosmWasm/wasmvm/v2 => github.com/CosmWasm/priv_wasmvm_sec v2.3.5-rc.2
 ```
 
-The Go code is built like this:
+If you are on `v3.0.x`:
 
-```
-make build-go
-make test
-```
-
-#### Package github.com/CosmWasm/wasmvm/types
-
-This packages contains types used by the two other packages. It can be compiled
-without cgo.
-
-```sh
-# Build
-go build ./types
-# Build without CGO
-CGO_ENABLED=0 go build ./types
+```go
+replace github.com/CosmWasm/wasmvm/v3 => github.com/CosmWasm/priv_wasmvm_sec <commit-sha>
 ```
 
-#### Package internal/api
+Take `<commit-sha>` from the head of `security/v3.0.x`.
 
-This package contains the code binding the libwasmvm build to the Go code. All
-low level FFI handling code belongs there. This package can only be built using
-cgo. Uing the `internal/` convention makes this package fully private.
+Then, tidy using the `GOPRIVATE` variable:
 
-#### Package github.com/CosmWasm/wasmvm
-
-This is the package users import. It can be compiled without cgo, but when you
-do so, a lot of functionality is removed.
-
-```sh
-# Build
-go build .
-# Build without CGO
-CGO_ENABLED=0 go build .
+```bash
+GOPRIVATE=github.com/CosmWasm/priv_wasmvm_sec go mod tidy
 ```
 
-In the case that it may be desirable to compile with cgo, but with libwasmvm
-linking disabled an additional build tag is available.
+> If you also consume `wasmd`, use the private `wasmd` repository as well and replace both. See https://github.com/CosmWasm/priv_wasmd_sec.
 
-```sh
-# Build with CGO, but with libwasmvm linking disabled
-go build -tags "nolink_libwasmvm"
+### 3. Verify you picked up the fix
+
+Prebuilt shared libraries are committed to this repository, so a Rust toolchain is not required for a standard build:
+
+- `internal/api/libwasmvm.x86_64.so`
+- `internal/api/libwasmvm.aarch64.so`
+- `internal/api/libwasmvm.dylib`
+
+Confirm the resolved version, and confirm the library is position-independent:
+
+```bash
+go list -m github.com/CosmWasm/wasmvm/v2   # or /v3
+readelf -h internal/api/libwasmvm.x86_64.so | grep Type   # expect DYN
 ```
 
-## Supported Platforms
+If you rebuild `libwasmvm` from source instead, build it with PIC.
 
-See [COMPILER_VERSIONS.md](docs/COMPILER_VERSIONS.md) for information on Go and
-Rust compiler support.
+---
 
-The Rust implementation of the VM is compiled to a library called libwasmvm.
-This is then linked to the Go code when the final binary is built. For that
-reason not all systems supported by Go are supported by this project.
+### 4. Build and Deploy
 
-Linux (tested on Ubuntu, Debian, Alpine) and macOS is supported. We are working
-on Windows support with very low priority (#288).
+Rebuild your node binary using your standard process, distribute the compiled binary to validators, and perform a coordinated upgrade.
 
-[#288]: https://github.com/CosmWasm/wasmvm/pull/288
+Build the binary as position-independent so that ASLR applies:
 
-### Builds of libwasmvm
+```bash
+-buildmode=pie
+# and, if you build statically, use -static-pie rather than -static in extldflags
+```
 
-Our system currently supports the following builds. In general we can only
-support targets that are
-[supported by Wasmer's singlepass backend](https://docs.wasmer.io/runtime/features#backend-support-by-chipset),
-which for example excludes all 32 bit systems.
+Set `kernel.randomize_va_space=2` on every validator host. Confirm the resulting binary is position-independent before distributing it:
 
-<!-- AUTO GENERATED BY libwasmvm_builds.py START -->
+```bash
+readelf -h ./build/<your-binary> | grep Type   # expect DYN
+```
 
-| OS family       | Arch    | Linking | Supported                    | Note                                                                                                                                   |
-| --------------- | ------- | ------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Linux (glibc)   | x86_64  | shared  | ✅​libwasmvm.x86_64.so       |                                                                                                                                        |
-| Linux (glibc)   | x86_64  | static  | 🚫​                          | Would link libwasmvm statically but glibc dynamically as static glibc linking is not recommended. Potentially interesting for Osmosis. |
-| Linux (glibc)   | aarch64 | shared  | ✅​libwasmvm.aarch64.so      |                                                                                                                                        |
-| Linux (glibc)   | aarch64 | static  | 🚫​                          |                                                                                                                                        |
-| Linux (musl)    | x86_64  | shared  | 🚫​                          | Possible but not needed                                                                                                                |
-| Linux (musl)    | x86_64  | static  | ✅​libwasmvm_muslc.x86_64.a  |                                                                                                                                        |
-| Linux (musl)    | aarch64 | shared  | 🚫​                          | Possible but not needed                                                                                                                |
-| Linux (musl)    | aarch64 | static  | ✅​libwasmvm_muslc.aarch64.a |                                                                                                                                        |
-| macOS           | x86_64  | shared  | ✅​libwasmvm.dylib           | Fat/universal library with multiple archs ([#294])                                                                                     |
-| macOS           | x86_64  | static  | ✅​libwasmvmstatic_darwin.a  | Fat/universal library with multiple archs ([#407])                                                                                     |
-| macOS           | aarch64 | shared  | ✅​libwasmvm.dylib           | Fat/universal library with multiple archs ([#294])                                                                                     |
-| macOS           | aarch64 | static  | ✅​libwasmvmstatic_darwin.a  | Fat/universal library with multiple archs ([#407])                                                                                     |
-| Windows (mingw) | x86_64  | shared  | 🏗​wasmvm.dll                | Shared library linking not working on Windows ([#389])                                                                                 |
-| Windows (mingw) | x86_64  | static  | 🚫​                          | Unclear if this can work using a cross compiler; needs research on .lib (MSVC toolchain) vs. .a (GNU toolchain). ([#389])              |
-| Windows (mingw) | aarch64 | shared  | 🚫​                          | Shared library linking not working on Windows ([#389])                                                                                 |
-| Windows (mingw) | aarch64 | static  | 🚫​                          | Unclear if this can work using a cross compiler; needs research on .lib (MSVC toolchain) vs. .a (GNU toolchain). ([#389])              |
+---
 
-[#294]: https://github.com/CosmWasm/wasmvm/pull/294
-[#389]: https://github.com/CosmWasm/wasmvm/issues/389
-[#407]: https://github.com/CosmWasm/wasmvm/issues/407
+## Notes
 
-<!-- AUTO GENERATED BY libwasmvm_builds.py END -->
+- Do not mirror this repository to public infrastructure
+- Do not copy this repository to a public Github repository
+- Do not reference this fix in public changelogs or releases before disclosure
+- Do not publish the patched binary's build instructions or version string ahead of disclosure. A version string that does not correspond to any public tag identifies a chain as carrying a private security build.
 
-## Development
+---
 
-There are two halves to this code - go and rust. The first step is to ensure that
-there is a proper dll built for your platform. This should be `api/libwasmvm.X`,
-where X is:
+## Upstream documentation
 
-- `so` for Linux systems
-- `dylib` for MacOS
-- `dll` for Windows - Not currently supported due to upstream dependency
-
-If this is present, then `make test` will run the Go test suite and you can
-import this code freely. If it is not present you will have to build it for your
-system, and ideally add it to this repo with a PR (on your fork). We will set up
-a proper CI system for building these binaries, but we are not there yet.
-
-To build the rust side, try `make build-libwasmvm` and wait for it to compile.
-This depends on `cargo` being installed with `rustc` version 1.47+. Generally,
-you can just use `rustup` to install all this with no problems.
+This README has been replaced with the hotfix instructions because that is what you need here. The upstream project README and full build documentation are at https://github.com/CosmWasm/wasmvm.
