@@ -2,7 +2,9 @@
 
 ⚠️ **This repository is confidential.**
 
-This repository contains a **private security hotfix for a critical severity CosmWasm vulnerability** that can lead to **fund loss**. The issue is exploitable in practice, and has been locally reproduced.
+This repository contains a **private security hotfix for a critical severity CosmWasm vulnerability** that can lead to **fund loss**. The issue is exploitable in practice and has been reproduced end to end against an official release binary.
+
+The same upgrade also carries fixes for several **high severity** vulnerabilities, which are resolved by the same Wasmer engine upgrade. Apply it as one change.
 
 The vulnerability is in the Wasmer Singlepass compiler used by `libwasmvm`. The fix upgrades the embedded Wasmer engine to **7.4.0**. Any chain that links `libwasmvm` and allows contract upload or instantiation to be reached by an attacker is affected.
 
@@ -19,7 +21,15 @@ To reduce the risk of premature disclosure, it is **strongly recommended** that 
 
 This upgrade must be performed as a coordinated upgrade.
 
-If you cannot complete this upgrade before the disclosure window closes, apply the interim mitigation instead: rebuild your existing binary as position-independent (`-buildmode=pie`, and `-static-pie` in place of `-static` in `extldflags`) and set `kernel.randomize_va_space=2` on every validator host. That reduces exploitability but does not remove the vulnerability.
+If you cannot complete this upgrade before the disclosure window closes, the interim options below raise the bar but **do not fix the vulnerability**. Treat them as defence in depth, not remediation.
+
+1. **Restrict `code_upload_access` from `Everybody` to a governance-controlled permission.** This is the stronger of the two. It prevents new permissionless delivery of a malicious contract. It does **not** neutralise malicious code that may already have been stored on your chain, so audit your existing stored codes as well.
+
+2. **Rebuild as position-independent and enable ASLR**: `-buildmode=pie`, and `-static-pie` in place of `-static` in `extldflags`, plus `kernel.randomize_va_space=2` on every validator host.
+
+⚠️ **On the PIE and ASLR mitigation specifically.** The researcher who reported this evaluated a `-static-pie` build and re-ran the exploit against it successfully, creating stake without debiting the sender across a four-validator test, with the result persisting across restart. Their assessment is that it "does not fix the underlying Wasmer Singlepass vulnerability" and that "the attacker-controlled native stack drift and JIT control-flow takeover remain intact."
+
+The reason it still helps is narrower than it looks: their calibration relied on reading `/proc/PID/maps` as a local address oracle, which is not a remote capability. Replacing it would, in their words, "constitute new exploit development beyond the submitted PoC." So PIE and ASLR do meaningfully raise the cost of the known payload, and they are worth applying today, but do not report a PIE rebuild as remediation.
 
 ## Timeline
 
@@ -94,6 +104,8 @@ GOPRIVATE=github.com/CosmWasm/priv_wasmvm_sec go mod tidy
 
 ### 3. Verify you picked up the fix
 
+⚠️ **Verify the fix, not the version number.** The upstream Wasmer change that corrects this appears to have fixed it incidentally during a broader refactor rather than as a targeted security patch. The researcher's explicit recommendation is that the chosen version "should be verified with a dedicated regression test rather than relying only on its version number." Do not treat a Wasmer version bump alone as proof you are patched.
+
 Prebuilt shared libraries are committed to this repository, so a Rust toolchain is not required for a standard build:
 
 - `internal/api/libwasmvm.x86_64.so`
@@ -127,6 +139,12 @@ Set `kernel.randomize_va_space=2` on every validator host. Confirm the resulting
 ```bash
 readelf -h ./build/<your-binary> | grep Type   # expect DYN
 ```
+
+---
+
+## Am I affected?
+
+At the reachability level the conditions are an execution stack embedding the affected Wasmer Singlepass compiler, **and** permissionless upload and execution of untrusted contracts. Exact exploit constants differ by binary, architecture and runtime layout, so a chain should not conclude it is safe because a published proof of concept does not run against its binary unchanged.
 
 ---
 
