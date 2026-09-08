@@ -1,0 +1,44 @@
+name: Configure access to the private CosmWasm forks
+description: Mint a GitHub App token and point git/Cargo at the private CosmWasm forks.
+
+inputs:
+  app-id:
+    description: GitHub App ID.
+    required: true
+  private-key:
+    description: GitHub App private key (PEM).
+    required: true
+  repositories:
+    description: Repositories the token may read.
+    required: false
+    default: priv_cosmwasm
+
+runs:
+  using: composite
+  steps:
+    - name: Mint an installation token
+      id: app-token
+      uses: actions/create-github-app-token@v2
+      with:
+        app-id: ${{ inputs.app-id }}
+        private-key: ${{ inputs.private-key }}
+        # Without these the token is scoped to the current repository only.
+        owner: CosmWasm
+        repositories: ${{ inputs.repositories }}
+
+    - name: Rewrite CosmWasm URLs to authenticated ones
+      shell: bash
+      env:
+        TOKEN: ${{ steps.app-token.outputs.token }}
+      run: |
+        if [[ -z "$TOKEN" ]]; then
+          echo "::error::No installation token was minted. Check the app is installed on the requested repositories." >&2
+          exit 1
+        fi
+
+        git config --global \
+          url."https://x-access-token:${TOKEN}@github.com/CosmWasm/".insteadOf \
+          "https://github.com/CosmWasm/"
+
+        # Cargo's built-in git fetcher does not read url.*.insteadOf.
+        echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> "$GITHUB_ENV"

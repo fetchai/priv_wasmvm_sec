@@ -53,3 +53,12 @@ codegen-units = 16
 panic = 'unwind'
 incremental = true
 overflow-checks = true
+
+# Every cosmwasm crate, direct or transitive, must come from the private fork.
+[patch.crates-io]
+cosmwasm-core = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v2.2.9" }
+cosmwasm-crypto = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v2.2.9" }
+cosmwasm-derive = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v2.2.9" }
+cosmwasm-std = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v2.2.9" }
+cosmwasm-vm = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v2.2.9" }
+cosmwasm-vm-derive = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v2.2.9" }

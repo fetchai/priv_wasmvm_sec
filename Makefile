@@ -79,7 +79,20 @@ release-build-alpine:
 	docker run --rm -v $(shell pwd)/libwasmvm:/code $(BUILDERS_PREFIX)-alpine
 	cp libwasmvm/artifacts/libwasmvm_muslc.x86_64.a internal/api
 	cp libwasmvm/artifacts/libwasmvm_muslc.aarch64.a internal/api
+	# Committed as .xz so consumers get the static libs from the Go module, not release assets.
+	xz -T0 -c libwasmvm/artifacts/libwasmvm_muslc.x86_64.a > internal/api/libwasmvm_muslc.x86_64.a.xz
+	xz -T0 -c libwasmvm/artifacts/libwasmvm_muslc.aarch64.a > internal/api/libwasmvm_muslc.aarch64.a.xz
 	make update-bindings
+
+# The builder containers have no credentials for the private forks.
+.PHONY: vendor-libwasmvm
+vendor-libwasmvm:
+	@if [ -e libwasmvm/.cargo/config.toml ] && ! grep -q 'vendored-sources' libwasmvm/.cargo/config.toml; then \
+		echo "libwasmvm/.cargo/config.toml is not a vendor config; move it aside."; \
+		exit 1; \
+	fi
+	mkdir -p libwasmvm/.cargo
+	(cd libwasmvm && cargo vendor --locked vendor > .cargo/config.toml)
 
 # Creates a release build in a containerized build environment of the shared library for glibc Linux (.so)
 release-build-linux:

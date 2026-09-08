@@ -438,14 +438,12 @@ dependencies = [
 [[package]]
 name = "cosmwasm-core"
 version = "2.2.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c185f4a3e1591bcd8942844fb73661fece7630ffca7189283060d7e5332eb581"
+source = "git+https://github.com/CosmWasm/priv_cosmwasm.git?tag=v2.2.9#f12a7c036150a1db4753ac5b26aa61f1570cf13f"
 
 [[package]]
 name = "cosmwasm-crypto"
 version = "2.2.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d0079badc4b4ee0d2e489caa74b7f0b020adf24f59e21613320add4180c8eb17"
+source = "git+https://github.com/CosmWasm/priv_cosmwasm.git?tag=v2.2.9#f12a7c036150a1db4753ac5b26aa61f1570cf13f"
 dependencies = [
  "ark-bls12-381",
  "ark-ec",
@@ -468,8 +466,7 @@ dependencies = [
 [[package]]
 name = "cosmwasm-derive"
 version = "2.2.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "927e988457956a2c1ee28cb112c8b664e0d16a83d43d737ea62f77cfa66e733a"
+source = "git+https://github.com/CosmWasm/priv_cosmwasm.git?tag=v2.2.9#f12a7c036150a1db4753ac5b26aa61f1570cf13f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -479,8 +476,7 @@ dependencies = [
 [[package]]
 name = "cosmwasm-std"
 version = "2.2.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f4e5be1b1a53c436c3141384a26a28b5a1ef73f11feb62100def0c03eba294c"
+source = "git+https://github.com/CosmWasm/priv_cosmwasm.git?tag=v2.2.9#f12a7c036150a1db4753ac5b26aa61f1570cf13f"
 dependencies = [
  "base64",
  "bech32",
@@ -503,8 +499,7 @@ dependencies = [
 [[package]]
 name = "cosmwasm-vm"
 version = "2.2.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2707dcb211fdfcee9393bcbf0f9c5e085c119f776f33da0159f12dcb3730e031"
+source = "git+https://github.com/CosmWasm/priv_cosmwasm.git?tag=v2.2.9#f12a7c036150a1db4753ac5b26aa61f1570cf13f"
 dependencies = [
  "bech32",
  "blake2",
@@ -533,8 +528,7 @@ dependencies = [
 [[package]]
 name = "cosmwasm-vm-derive"
 version = "2.2.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "774c596922c3667c273036c7282949540629543cf420b76ac33ce71fd5d4c62c"
+source = "git+https://github.com/CosmWasm/priv_cosmwasm.git?tag=v2.2.9#f12a7c036150a1db4753ac5b26aa61f1570cf13f"
 dependencies = [
  "blake2",
  "proc-macro2",

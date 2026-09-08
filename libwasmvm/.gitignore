@@ -1,3 +1,7 @@
 # Build results
 target/
 artifacts/
+
+# make vendor-libwasmvm
+.cargo/config.toml
+vendor/
