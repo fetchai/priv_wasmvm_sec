@@ -1,3 +1,10 @@
+> ⚠️ **CONFIDENTIAL PRIVATE SECURITY HOTFIX**
+>
+> This is a private fork carrying an unreleased fix for a critical severity
+> CosmWasm vulnerability in the Wasmer Singlepass compiler. Do not share,
+> fork, or discuss publicly until disclosure.
+> **Read [HOTFIX.md](HOTFIX.md) before doing anything else.**
+
 # wasmvm
 
 This is a wrapper around the
