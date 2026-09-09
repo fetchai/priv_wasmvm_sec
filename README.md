@@ -19,7 +19,7 @@ This upgrade must be performed as a coordinated upgrade.
 
 ## Timeline
 
-The private disclosure window for this vulnerability is 2 weeks, beginning Wednesday, September 9th. After the disclosure window closes, the fixes will be merged into the public repo at 10am EST on Wednesday, September 23rd 2026 and released in a patch release.
+The private disclosure window for this vulnerability is 2 weeks, beginning Thursday, September 10th. After the disclosure window closes, the fixes will be merged into the public repo at 10am EST on Thursday, September 24th 2026 and released in a patch release.
 
 ### Hotfix Tags
 
