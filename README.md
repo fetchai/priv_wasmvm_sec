@@ -27,15 +27,15 @@ Use the tag matching your release line. `main` tracks upstream and does not cont
 
 | Your `wasmvm` line | Tag | Branch | Module path |
 |---|---|---|---|
-| `v2.2.x` | `v2.2.9` | `security/v2.2.x` | `github.com/CosmWasm/wasmvm/v2` |
-| `v2.3.x` | `v2.3.5` | `security/v2.3.x` | `github.com/CosmWasm/wasmvm/v2` |
-| `v3.0.x` | `v3.0.8` | `security/v3.0.x` | `github.com/CosmWasm/wasmvm/v3` |
+| `v2.2.x` | `v2.2.9-rc.2` | `security/v2.2.x` | `github.com/CosmWasm/wasmvm/v2` |
+| `v2.3.x` | `v2.3.5-rc.2` | `security/v2.3.x` | `github.com/CosmWasm/wasmvm/v2` |
+| `v3.0.x` | `v3.0.8-rc.2` | `security/v3.0.x` | `github.com/CosmWasm/wasmvm/v3` |
 
 The module path changes with the major version, so the `v2` and `v3` replace directives are not interchangeable.
 
 Chains on a `wasmvm` line older than `v2.2.x` should upgrade to the closest version above.
 
-Release candidates are published ahead of the final tags, as `-rc.N` suffixes on the same versions.
+The `-rc.2` suffix is intentional and is the tag to use. These stay as release candidates for the duration of the private window so the correct version is easy to identify and a further hotfix can be added without renumbering. The final tags are published, without version holes, only after the disclosure window closes.
 
 ---
 
@@ -65,24 +65,24 @@ Add a `replace` directive pointing to this repository, using the module path and
 If you are on `v2.2.x`:
 
 ```go
-replace github.com/CosmWasm/wasmvm/v2 => github.com/CosmWasm/priv_wasmvm_sec/v2 v2.2.9
+replace github.com/CosmWasm/wasmvm/v2 => github.com/CosmWasm/priv_wasmvm_sec/v2 v2.2.9-rc.2
 ```
 
 If you are on `v2.3.x`:
 
 ```go
-replace github.com/CosmWasm/wasmvm/v2 => github.com/CosmWasm/priv_wasmvm_sec/v2 v2.3.5
+replace github.com/CosmWasm/wasmvm/v2 => github.com/CosmWasm/priv_wasmvm_sec/v2 v2.3.5-rc.2
 ```
 
 If you are on `v3.0.x`:
 
 ```go
-replace github.com/CosmWasm/wasmvm/v3 => github.com/CosmWasm/priv_wasmvm_sec/v3 v3.0.8
+replace github.com/CosmWasm/wasmvm/v3 => github.com/CosmWasm/priv_wasmvm_sec/v3 v3.0.8-rc.2
 ```
 
 The `v2.2.x` and `v2.3.x` lines share the `/v2` module path but take different versions, so use the one matching your line rather than the newer of the two.
 
-Note the `/v2` or `/v3` suffix on `priv_wasmvm_sec`. It is required. Without it Go rejects the directive with `version "v2.3.5" invalid: should be v0 or v1, not v2`, because this repository declares a post-v1 module path.
+Note the `/v2` or `/v3` suffix on `priv_wasmvm_sec`. It is required. Without it Go rejects the directive with `version "v2.3.5-rc.2" invalid: should be v0 or v1, not v2`, because this repository declares a post-v1 module path.
 
 Then export `GOPRIVATE` and tidy:
 
@@ -99,7 +99,9 @@ If you also consume `wasmd`, use the private `wasmd` repository as well: https:/
 
 ### 3. Build and Deploy
 
-Rebuild your node binary using your standard process, distribute the compiled binary to validators, and perform a coordinated upgrade.
+Building from this repository is not the same as building from the public one. Depending on whether you link `libwasmvm` dynamically or statically, your build script or Dockerfile will need changes. Separate build instructions covering both cases are being provided; do not assume your existing build target works unchanged.
+
+Once built, distribute the compiled binary to your validators and perform a coordinated upgrade.
 
 ---
 
