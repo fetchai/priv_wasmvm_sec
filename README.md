@@ -65,22 +65,24 @@ Add a `replace` directive pointing to this repository, using the module path and
 If you are on `v2.2.x`:
 
 ```go
-replace github.com/CosmWasm/wasmvm/v2 => github.com/CosmWasm/priv_wasmvm_sec v2.2.9
+replace github.com/CosmWasm/wasmvm/v2 => github.com/CosmWasm/priv_wasmvm_sec/v2 v2.2.9
 ```
 
 If you are on `v2.3.x`:
 
 ```go
-replace github.com/CosmWasm/wasmvm/v2 => github.com/CosmWasm/priv_wasmvm_sec v2.3.5
+replace github.com/CosmWasm/wasmvm/v2 => github.com/CosmWasm/priv_wasmvm_sec/v2 v2.3.5
 ```
 
 If you are on `v3.0.x`:
 
 ```go
-replace github.com/CosmWasm/wasmvm/v3 => github.com/CosmWasm/priv_wasmvm_sec v3.0.8
+replace github.com/CosmWasm/wasmvm/v3 => github.com/CosmWasm/priv_wasmvm_sec/v3 v3.0.8
 ```
 
 The `v2.2.x` and `v2.3.x` lines share the `/v2` module path but take different versions, so use the one matching your line rather than the newer of the two.
+
+Note the `/v2` or `/v3` suffix on `priv_wasmvm_sec`. It is required. Without it Go rejects the directive with `version "v2.3.5" invalid: should be v0 or v1, not v2`, because this repository declares a post-v1 module path.
 
 Then, tidy using the `GOPRIVATE` variable:
 
