@@ -13,9 +13,9 @@ Thank you for your continued dedication to maintaining a safe and secure ecosyst
 
 ## Upgrade Guidance
 
-To reduce the risk of premature disclosure, it is **strongly recommended** that this fix is deployed via **compiled binaries distributed directly to validators**, rather than public source changes, until the disclosure window closes.
+Build the binary yourself and hand the compiled binary to your validators. Do not publish the source change, and do not point validators at this repository, until the disclosure window closes.
 
-This upgrade must be performed as a coordinated upgrade.
+Perform the upgrade as a coordinated upgrade.
 
 ## Timeline
 
@@ -84,11 +84,14 @@ The `v2.2.x` and `v2.3.x` lines share the `/v2` module path but take different v
 
 Note the `/v2` or `/v3` suffix on `priv_wasmvm_sec`. It is required. Without it Go rejects the directive with `version "v2.3.5" invalid: should be v0 or v1, not v2`, because this repository declares a post-v1 module path.
 
-Then, tidy using the `GOPRIVATE` variable:
+Then export `GOPRIVATE` and tidy:
 
 ```bash
-GOPRIVATE=github.com/CosmWasm/priv_wasmvm_sec go mod tidy
+export GOPRIVATE=github.com/CosmWasm/priv_wasmvm_sec
+go mod tidy
 ```
+
+Keep `GOPRIVATE` exported for the build as well. Build targets such as `make build` re-run `go mod tidy` and `go mod download` internally, and without it Go tries to verify these modules against the public checksum database and fails with `verifying go.mod: ... sum.golang.org/lookup/...: 404 Not Found`.
 
 If you also consume `wasmd`, use the private `wasmd` repository as well: https://github.com/CosmWasm/priv_wasmd_sec.
 
