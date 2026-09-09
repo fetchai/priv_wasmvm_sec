@@ -62,7 +62,13 @@ If you choose to use HTTPS, please follow the instructions here: https://go.dev/
 
 Add a `replace` directive pointing to this repository, using the module path and tag that match your release line.
 
-If you are on `v2.2.x` or `v2.3.x`:
+If you are on `v2.2.x`:
+
+```go
+replace github.com/CosmWasm/wasmvm/v2 => github.com/CosmWasm/priv_wasmvm_sec v2.2.9
+```
+
+If you are on `v2.3.x`:
 
 ```go
 replace github.com/CosmWasm/wasmvm/v2 => github.com/CosmWasm/priv_wasmvm_sec v2.3.5
@@ -73,6 +79,8 @@ If you are on `v3.0.x`:
 ```go
 replace github.com/CosmWasm/wasmvm/v3 => github.com/CosmWasm/priv_wasmvm_sec v3.0.8
 ```
+
+The `v2.2.x` and `v2.3.x` lines share the `/v2` module path but take different versions, so use the one matching your line rather than the newer of the two.
 
 Then, tidy using the `GOPRIVATE` variable:
 
