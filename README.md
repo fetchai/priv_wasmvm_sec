@@ -21,16 +21,21 @@ This upgrade must be performed as a coordinated upgrade.
 
 The private disclosure window for this vulnerability is 2 weeks, beginning Wednesday, September 9th. After the disclosure window closes, the fixes will be merged into the public repo at 10am EST on Wednesday, September 23rd 2026 and released in a patch release.
 
-### Hotfix Branches
+### Hotfix Tags
 
-The fix is provided on the following branches. `main` tracks upstream and does not contain the fix.
+Use the tag matching your release line. `main` tracks upstream and does not contain the fix.
 
-| Your `wasmvm` line | Branch | Version | Module path |
+| Your `wasmvm` line | Tag | Branch | Module path |
 |---|---|---|---|
-| `v2.3.x` | `security/v2.3.x` | `v2.3.5-rc.2` | `github.com/CosmWasm/wasmvm/v2` |
-| `v3.0.x` | `security/v3.0.x` | `3.0.8-rc.2` | `github.com/CosmWasm/wasmvm/v3` |
+| `v2.2.x` | `v2.2.9` | `security/v2.2.x` | `github.com/CosmWasm/wasmvm/v2` |
+| `v2.3.x` | `v2.3.5` | `security/v2.3.x` | `github.com/CosmWasm/wasmvm/v2` |
+| `v3.0.x` | `v3.0.8` | `security/v3.0.x` | `github.com/CosmWasm/wasmvm/v3` |
 
-`v2.3.5-rc.2` is tagged. `3.0.8-rc.2` is not yet tagged, so pin by commit from the head of `security/v3.0.x`.
+The module path changes with the major version, so the `v2` and `v3` replace directives are not interchangeable.
+
+Chains on a `wasmvm` line older than `v2.2.x` should upgrade to the closest version above.
+
+Release candidates are published ahead of the final tags, as `-rc.N` suffixes on the same versions.
 
 ---
 
@@ -55,18 +60,18 @@ If you choose to use HTTPS, please follow the instructions here: https://go.dev/
 
 ### 2. Update `go.mod`
 
-Add a `replace` directive pointing to this repository, using the module path and version that match your release line.
+Add a `replace` directive pointing to this repository, using the module path and tag that match your release line.
 
-If you are on `v2.3.x`:
+If you are on `v2.2.x` or `v2.3.x`:
 
 ```go
-replace github.com/CosmWasm/wasmvm/v2 => github.com/CosmWasm/priv_wasmvm_sec v2.3.5-rc.2
+replace github.com/CosmWasm/wasmvm/v2 => github.com/CosmWasm/priv_wasmvm_sec v2.3.5
 ```
 
 If you are on `v3.0.x`:
 
 ```go
-replace github.com/CosmWasm/wasmvm/v3 => github.com/CosmWasm/priv_wasmvm_sec <commit-sha>
+replace github.com/CosmWasm/wasmvm/v3 => github.com/CosmWasm/priv_wasmvm_sec v3.0.8
 ```
 
 Then, tidy using the `GOPRIVATE` variable:
