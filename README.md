@@ -117,11 +117,18 @@ Building from this repository is not the same as building from the public one.
 Depending on whether you link `libwasmvm` dynamically or statically, your build script or Dockerfile
 will need changes; do not assume your existing build target works unchanged.
 
+Before you build, check your Dockerfile and Makefile for anything that derives the wasmvm
+version by reading `go.mod`, for example
+`WASMVM_VERSION=$(cat go.mod | grep github.com/CosmWasm/wasmvm/vN | awk '{print $2}')`.
+The `replace` directive adds a second line matching that pattern, so the grep returns two
+values instead of one and the version comes out malformed. Remove or hardcode that step. The
+public release asset it fetches does not exist for these tags in any case.
+
 **Dynamic build on the host** (`make build`): keep `GOPRIVATE` exported and build as usual.
 Ship the patched `libwasmvm.<arch>.so` with the binary and have validators install it in place of the public one:
 
 ```shell
-cp "$(go list -m -f '{{.Dir}}' github.com/CosmWasm/wasmvm/v2)/internal/api/libwasmvm.$(uname -m).so" .
+cp "$(go list -m -f '{{.Dir}}' github.com/CosmWasm/wasmvm/v3)/internal/api/libwasmvm.$(uname -m).so" .
 ```
 
 **Static build in Docker** (e.g. `make build-static-linux-amd64`): two changes are needed.
@@ -137,7 +144,7 @@ cp -r "$(go env GOMODCACHE)"/cache/download/github.com/\!cosm\!wasm/priv_wasmd_s
 ```
 
 2. In the Dockerfile, replace the `go mod download` step and the `ADD` of the wasmvm
-   release asset (plus any `cp` of it) with the block below. Use `/v2` or `/v3` to match your line,
+   release asset (plus any `cp` of it) with the block below. The `/v3` below is correct for this branch,
    and the checksums from the table above:
 
 ```dockerfile
@@ -145,7 +152,7 @@ COPY .modcache/ /modcache/
 ENV GOPROXY=file:///modcache,https://proxy.golang.org,direct
 RUN go mod download
 RUN apk add --no-cache xz \
- && unxz -c "$(go list -mod=readonly -m -f '{{.Dir}}' github.com/CosmWasm/wasmvm/v2)/internal/api/libwasmvm_muslc.$(uname -m).a.xz" \
+ && unxz -c "$(go list -mod=readonly -m -f '{{.Dir}}' github.com/CosmWasm/wasmvm/v3)/internal/api/libwasmvm_muslc.$(uname -m).a.xz" \
       > "/lib/libwasmvm_muslc.$(uname -m).a"
 RUN sha256sum "/lib/libwasmvm_muslc.$(uname -m).a" | grep -E "<x86_64 sha256>|<aarch64 sha256>"
 ```
