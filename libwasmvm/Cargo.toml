@@ -1,6 +1,6 @@
 [package]
 name = "wasmvm"
-version = "3.0.8-rc.2"
+version = "3.0.8-rc.3"
 publish = false
 authors = ["Ethan Frey <ethanfrey@users.noreply.github.com>"]
 edition = "2021"
@@ -26,13 +26,13 @@ default = []
 backtraces = []
 
 [dependencies]
-cosmwasm-std = { version = "=3.0.10-rc.2", features = [
+cosmwasm-std = { version = "=3.0.10-rc.3", features = [
   "staking",
   "stargate",
   "iterator",
   "ibc2",
 ] }
-cosmwasm-vm = { version = "=3.0.10-rc.2", features = [
+cosmwasm-vm = { version = "=3.0.10-rc.3", features = [
   "staking",
   "stargate",
   "iterator",
@@ -66,9 +66,9 @@ overflow-checks = true
 
 # Every cosmwasm crate, direct or transitive, must come from the private fork.
 [patch.crates-io]
-cosmwasm-core = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v3.0.10-rc.2" }
-cosmwasm-crypto = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v3.0.10-rc.2" }
-cosmwasm-derive = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v3.0.10-rc.2" }
-cosmwasm-std = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v3.0.10-rc.2" }
-cosmwasm-vm = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v3.0.10-rc.2" }
-cosmwasm-vm-derive = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v3.0.10-rc.2" }
+cosmwasm-core = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v3.0.10-rc.3" }
+cosmwasm-crypto = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v3.0.10-rc.3" }
+cosmwasm-derive = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v3.0.10-rc.3" }
+cosmwasm-std = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v3.0.10-rc.3" }
+cosmwasm-vm = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v3.0.10-rc.3" }
+cosmwasm-vm-derive = { git = "https://github.com/CosmWasm/priv_cosmwasm.git", tag = "v3.0.10-rc.3" }
