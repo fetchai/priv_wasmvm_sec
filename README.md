@@ -32,10 +32,10 @@ Use the tag matching your release line. `main` tracks upstream and does not cont
 
 | Your release line | Tag             | Branch             | wasmvm replacement                                   |
 |-------------------|-----------------|--------------------|------------------------------------------------------|
-| `v0.54.x`         | `v0.54.10-rc.2` | `security/v0.54.x` | `github.com/CosmWasm/priv_wasmvm_sec/v2 v2.2.9-rc.2` |
-| `v0.60.x`         | `v0.60.9-rc.2`  | `security/v0.60.x` | `github.com/CosmWasm/priv_wasmvm_sec/v2 v2.3.5-rc.2` |
-| `v0.61.x`         | `v0.61.15-rc.2` | `security/v0.61.x` | `github.com/CosmWasm/priv_wasmvm_sec/v3 v3.0.8-rc.2` |
-| `v0.70.x`         | `v0.70.4-rc.2`  | `security/v0.70.x` | `github.com/CosmWasm/priv_wasmvm_sec/v3 v3.0.8-rc.2` |
+| `v0.54.x`         | `v0.54.10-rc.3` | `security/v0.54.x` | `github.com/CosmWasm/priv_wasmvm_sec/v2 v2.2.9-rc.3` |
+| `v0.60.x`         | `v0.60.9-rc.3`  | `security/v0.60.x` | `github.com/CosmWasm/priv_wasmvm_sec/v2 v2.3.5-rc.3` |
+| `v0.61.x`         | `v0.61.15-rc.3` | `security/v0.61.x` | `github.com/CosmWasm/priv_wasmvm_sec/v3 v3.0.8-rc.3` |
+| `v0.70.x`         | `v0.70.4-rc.3`  | `security/v0.70.x` | `github.com/CosmWasm/priv_wasmvm_sec/v3 v3.0.8-rc.3` |
 
 Chains on a release line not listed above should upgrade to the closest version that is.
 
@@ -46,11 +46,11 @@ See step 3 below.
 
 | wasmvm        | `x86_64`                                                           | `aarch64`                                                          |
 |---------------|--------------------------------------------------------------------|--------------------------------------------------------------------|
-| `v2.2.9-rc.2` | `3032aa5b8d486625327073dc60e007bcebd5a6202cdcecb7d5b21ca8bc0a4889` | `ebd660d24d0d698c4784f8d4598e487c7fd8c8f8b64f70282734cf9669527a74` |
-| `v2.3.5-rc.2` | `4d1ed8a888e0c86057994d939a03f636609366332a2947d387bf891421cc49c9` | `d4b1bc176e8bda0d073658200ca67629ba9b445d47ed2a5c456eac60468a4660` |
-| `v3.0.8-rc.2` | `6863af60cebf04d094bc3bcf22a2777e1e1b4f1295d54e3b9a1082a3b359de8a` | `46f4d0913331096f2926f28d5d0f4405eb700f571be229cf8774d942619370a4` |
+| `v2.2.9-rc.3` | `c2e4018d532138fad3113a140ccb6c73cfa41b5c9889633b08299e59568616b9` | `0b52937b401b5595232c91ab98e4645f5fdcc86220105a6eab60eba938cf8f46` |
+| `v2.3.5-rc.3` | `8916669b44e4a88b044f97ae7cd27feacdcfa205f494f91eecea7428968193b5` | `6f1330191109b99ad6917cd8dec318b04ca660d9853b4e182f9bcd76b0392038` |
+| `v3.0.8-rc.3` | `ab1a878ed3beecc5f3821b1fb1f73a5254443e3ba9bca53964a50a122ee77497` | `cc9175235d1e0051002c33a94027a63a008b14dcc13ae483685e511d59754235` |
 
-The `-rc.2` suffix is intentional and is the tag to use. These stay as release candidates
+The `-rc.3` suffix is intentional and is the tag to use. These stay as release candidates
 for the duration of the private window so the correct version is easy to identify
 and a further hotfix can be added without renumbering.
 The final tags are published, without version holes, only after the disclosure window closes.
@@ -86,8 +86,8 @@ For example, if you are on `v0.60.x`:
 
 ```go
 replace (
-	github.com/CosmWasm/wasmd => github.com/CosmWasm/priv_wasmd_sec v0.60.9-rc.2
-	github.com/CosmWasm/wasmvm/v2 => github.com/CosmWasm/priv_wasmvm_sec/v2 v2.3.5-rc.2
+	github.com/CosmWasm/wasmd => github.com/CosmWasm/priv_wasmd_sec v0.60.9-rc.3
+	github.com/CosmWasm/wasmvm/v2 => github.com/CosmWasm/priv_wasmvm_sec/v2 v2.3.5-rc.3
 )
 ```
 
@@ -96,7 +96,7 @@ only in the private `wasmvm` repository.
 
 The `/v2` or `/v3` suffix appears on **both sides** of the `wasmvm` directive and is required on both.
 It is `/v2` for the `v0.54.x` and `v0.60.x` lines and `/v3` for the `v0.61.x` and `v0.70.x` lines.
-Omitting it on the right-hand side fails with `version "v2.3.5-rc.2" invalid: should be v0 or v1, not v2`.
+Omitting it on the right-hand side fails with `version "v2.3.5-rc.3" invalid: should be v0 or v1, not v2`.
 
 Then export `GOPRIVATE` and tidy:
 
